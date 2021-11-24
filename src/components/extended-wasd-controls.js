@@ -196,7 +196,14 @@ AFRAME.registerComponent("extended-wasd-controls", {
       //   when querying which keys are currently pressed
       this.movePercent.set(0, 0, 0);
 
-      if (this.isKeyPressed(this.data.moveForwardKey)) this.movePercent.z += 1;
+      if (this.isKeyPressed(this.data.moveForwardKey)) {
+        this.movePercent.z += 1;
+        document.getElementById("song").playbackRate = 2.0;
+      } else {
+        this.movePercent.z += 0.1;
+        document.getElementById("song").playbackRate = 1.0;
+      }
+
       if (this.isKeyPressed(this.data.moveBackwardKey)) this.movePercent.z -= 1;
 
       if (this.isKeyPressed(this.data.moveRightKey)) this.movePercent.x += 1;
@@ -210,8 +217,6 @@ AFRAME.registerComponent("extended-wasd-controls", {
     else {
       // assume this.movePercent values have been set/reset elsewhere (outside of this function)
     }
-
-    this.movePercent.z += 0.1;
 
     // forward(z) direction: [ -s,  0, -c ]
     //   right(x) direction: [  c,  0, -s ]
