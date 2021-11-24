@@ -196,15 +196,17 @@ AFRAME.registerComponent("extended-wasd-controls", {
       //   when querying which keys are currently pressed
       this.movePercent.set(0, 0, 0);
 
+      document.getElementById("song").playbackRate = 1.0;
+
       if (this.isKeyPressed(this.data.moveForwardKey)) {
         this.movePercent.z += 1;
         document.getElementById("song").playbackRate = 2.0;
-      } else {
-        this.movePercent.z += 0.1;
-        document.getElementById("song").playbackRate = 1.0;
       }
 
-      if (this.isKeyPressed(this.data.moveBackwardKey)) this.movePercent.z -= 1;
+      if (this.isKeyPressed(this.data.moveBackwardKey)) {
+        this.movePercent.z -= 1;
+        document.getElementById("song").playbackRate = 0.5;
+      }
 
       if (this.isKeyPressed(this.data.moveRightKey)) this.movePercent.x += 1;
       if (this.isKeyPressed(this.data.moveLeftKey)) this.movePercent.x -= 1;
