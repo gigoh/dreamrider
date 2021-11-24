@@ -1,7 +1,7 @@
 const SerialPort = require("serialport");
 const Readline = require("@serialport/parser-readline");
 
-const port = new SerialPort("COM10", { baudRate: 115200 });
+const port = new SerialPort("COM11", { baudRate: 115200 });
 const parser = port.pipe(new Readline({ delimter: "\n" }));
 
 AFRAME.registerComponent("extended-wasd-controls", {
@@ -210,6 +210,8 @@ AFRAME.registerComponent("extended-wasd-controls", {
     else {
       // assume this.movePercent values have been set/reset elsewhere (outside of this function)
     }
+
+    this.movePercent.z += 0.1;
 
     // forward(z) direction: [ -s,  0, -c ]
     //   right(x) direction: [  c,  0, -s ]

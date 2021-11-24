@@ -8,9 +8,8 @@ AFRAME.registerComponent("audioanalyser-volume-scale", {
     var analyserEl = this.data.analyserEl || this.el;
     var analyserComponent;
     var el = this.el;
+    var el2 = document.querySelector(".environmentDressing");
     var volume;
-
-    el = document.querySelector(".environmentDressing");
 
     analyserComponent = analyserEl.components.audioanalyser;
     if (!analyserComponent.analyser) {
@@ -18,10 +17,11 @@ AFRAME.registerComponent("audioanalyser-volume-scale", {
     }
 
     volume = analyserComponent.volume * this.data.multiplier;
-    el.setAttribute("scale", {
-      // x: volume,
+    // el.setAttribute("scale", {
+    //   x: 1 + volume,
+    // });
+    el2.setAttribute("scale", {
       y: 1 + volume,
-      // z: volume
     });
   },
 });
