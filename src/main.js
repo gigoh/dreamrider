@@ -50,6 +50,8 @@ app.on("ready", () => {
   const mainWindow = createWindow("main", {
     width: 1600,
     height: 900,
+    // fullscreen: true,
+    kiosk: true,
     webPreferences: {
       // Two properties below are here for demo purposes, and are
       // security hazard. Make sure you know what you're doing

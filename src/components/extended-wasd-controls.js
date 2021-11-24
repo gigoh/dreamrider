@@ -104,6 +104,9 @@ AFRAME.registerComponent("extended-wasd-controls", {
 
     parser.on("data", (chunk) => {
       self.el.rotateSensorRaw = parseInt(chunk) || 0;
+      document.getElementById("handlebar").style = `transform: rotate(${
+        self.el.rotateSensorRaw / 8
+      }deg); filter: invert()`;
     });
   },
 

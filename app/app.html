@@ -3,19 +3,21 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Dreamrider</title>
+  <title>DreamRider</title>
   <script src="aframe-v1.2.0.js"></script>
 </head>
 
 <body>
-  <a-scene camera-position environment="preset: forest; seed: 1; grid: 1x1; playArea: 0.8"
+  <!-- SCENE -->
+  <a-scene camera-position
+    environment="preset: forest; seed: 8; playArea: 0.8; dressing: mushrooms; dressingColor: white"
     keyboard-shortcuts="enterVR: false;" vr-mode-ui="enabled: false"
-    loading-screen="dotsColor: red; backgroundColor: black" stats>
+    loading-screen="dotsColor: red; backgroundColor: black">
     <a-assets>
       <audio id="song" src="bgm.mp3" autoplay></audio>
     </a-assets>
 
-    <a-box id="road" depth="100" position="0 0.3 0" audioanalyser="src: #song"
+    <a-box id="road" depth="100" width="1.5" position="0 0.3 0" audioanalyser="src: #song"
       audioanalyser-volume-scale="multiplier: .08"></a-box>
 
     <a-entity camera position="0 1.6 0"
@@ -28,6 +30,13 @@
   <script src="https://unpkg.com/aframe-environment-component@1.3.1/dist/aframe-environment-component.min.js"></script>
   <script
     src="https://unpkg.com/aframe-audioanalyser-component@6.1.0/dist/aframe-audioanalyser-component.min.js"></script>
+
+  <!-- NOTICE -->
+  <div id="notice" style="position: fixed; top: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.5); padding: 0px">
+    <!-- <p style="font-family: monospace; color: #FAFAFA; text-align: center">Welcome to DreamRider</p> -->
+    <p style="text-align: center"><img id="handlebar" src="handlebar.png" />
+    </p>
+  </div>
 </body>
 
 </html>
