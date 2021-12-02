@@ -1,8 +1,10 @@
-const SerialPort = require("serialport");
-const Readline = require("@serialport/parser-readline");
+// const SerialPort = require("serialport");
+// const Readline = require("@serialport/parser-readline");
 
-const port = new SerialPort("COM11", { baudRate: 115200 });
-const parser = port.pipe(new Readline({ delimter: "\n" }));
+// const port = new SerialPort("COM11", { baudRate: 115200 });
+// const parser = port.pipe(new Readline({ delimter: "\n" }));
+
+const noble = require("@abandonware/noble");
 
 AFRAME.registerComponent("extended-wasd-controls", {
   schema: {
@@ -102,11 +104,44 @@ AFRAME.registerComponent("extended-wasd-controls", {
     // allows easy extraction of turn angle
     this.el.object3D.rotation.order = "YXZ";
 
-    parser.on("data", (chunk) => {
-      self.el.rotateSensorRaw = parseInt(chunk) || 0;
-      document.getElementById("handlebar").style = `transform: rotate(${
-        self.el.rotateSensorRaw / 8
-      }deg); filter: invert()`;
+    // parser.on("data", (chunk) => {
+    //   self.el.rotateSensorRaw = parseInt(chunk) || 0;
+    //   document.getElementById("handlebar").style = `transform: rotate(${
+    //     self.el.rotateSensorRaw / 8
+    //   }deg); filter: invert()`;
+    // });
+
+    noble.on("stateChange", async (state) => {
+      if (state === "poweredOn") {
+        await noble.startScanningAsync(["180f"], false);
+      }
+    });
+
+    noble.on("discover", async (peripheral) => {
+      await noble.stopScanningAsync();
+      await peripheral.connectAsync();
+      const { characteristics } =
+        await peripheral.discoverSomeServicesAndCharacteristicsAsync(
+          ["180f"],
+          ["2a19"]
+        );
+
+      // const batteryLevel = (await characteristics[0].readAsync())[0];
+
+      await characteristics[0].subscribeAsync();
+      characteristics[0].on("data", (chunk) => {
+        self.el.rotateSensorRaw = chunk.readInt16LE() || 0;
+        document.getElementById("handlebar").style = `transform: rotate(${
+          self.el.rotateSensorRaw / 8
+        }deg); filter: invert()`;
+      });
+
+      // console.log(
+      //   `${peripheral.address} (${peripheral.advertisement.localName}): ${batteryLevel}%`
+      // );
+
+      // await peripheral.disconnectAsync();
+      // process.exit(0);
     });
   },
 
