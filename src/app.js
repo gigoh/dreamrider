@@ -42,3 +42,4 @@ import "./stylesheets/main.css";
 import "./components/camera-position";
 import "./components/extended-wasd-controls";
 import "./components/audioanalyser-volume-scale";
+import "./components/aframe-environment-component";
