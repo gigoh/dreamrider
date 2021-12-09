@@ -1,21 +1,26 @@
 /*
-  Battery Monitor
+  DreamRiderController
 
-  This example creates a BLE peripheral with the standard battery service and
+  This code creates a BLE peripheral with the standard battery service and
   level characteristic. The A0 pin is used to calculate the battery level.
 
   The circuit:
-  - Arduino MKR WiFi 1010, Arduino Uno WiFi Rev2 board, Arduino Nano 33 IoT,
-    Arduino Nano 33 BLE, or Arduino Nano 33 BLE Sense board.
+  - Arduino MKR WiFi 1010
 
-  You can use a generic BLE central app, like LightBlue (iOS and Android) or
-  nRF Connect (Android), to interact with the services and characteristics
-  created in this sketch.
-
-  This example code is in the public domain.
+  You can use DreamRider app to interact with the services and
+  characteristics created in this sketch.
 */
 
 #include <ArduinoBLE.h>
+
+#define SPOKES 14
+#define DIAMETER 0.622
+#define PULSE_MIN_INTERVAL 32L
+#define PULSE_TIMEOUT 1000L
+#define REPORT_INTERVAL 16L
+
+const byte steeringPin = A0;
+const byte speedPin = A1;
 
  // BLE Battery Service
 BLEService batteryService("180F");
@@ -23,15 +28,22 @@ BLEService batteryService("180F");
 // BLE Battery Level Characteristic
 BLEShortCharacteristic batteryLevelChar("2A19",  // standard 16-bit characteristic UUID
     BLERead | BLENotify); // remote clients will be able to get notifications if this characteristic changes
+BLEFloatCharacteristic speedFloat("2A20",  // standard 16-bit characteristic UUID
+    BLERead | BLENotify); // remote clients will be able to get notifications if this characteristic changes
 
-int oldBatteryLevel = 0;  // last battery level reading from analog input
 long previousMillis = 0;  // last time the battery level was checked, in ms
 
+float currentSpeed = 0;
+long last = 0;
+bool noInterrupt = false;
+
 void setup() {
-  Serial.begin(9600);    // initialize serial communication
+  Serial.begin(115200);    // initialize serial communication
 //  while (!Serial);
 
   pinMode(LED_BUILTIN, OUTPUT); // initialize the built-in LED pin to indicate when a central is connected
+  pinMode(speedPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(speedPin), calculateSpeed, FALLING);
 
   // begin initialization
   if (!BLE.begin()) {
@@ -48,8 +60,10 @@ void setup() {
   BLE.setLocalName("DreamRider");
   BLE.setAdvertisedService(batteryService); // add the service UUID
   batteryService.addCharacteristic(batteryLevelChar); // add the battery level characteristic
+  batteryService.addCharacteristic(speedFloat);
   BLE.addService(batteryService); // Add the battery service
-  batteryLevelChar.writeValue(oldBatteryLevel); // set initial value for this characteristic
+  batteryLevelChar.writeValue(0); // set initial value for this characteristic
+  speedFloat.writeValue(0);
 
   /* Start advertising BLE.  It will start continuously transmitting BLE
      advertising packets and will be visible to remote BLE central devices
@@ -73,13 +87,17 @@ void loop() {
     // turn on the LED to indicate the connection:
     digitalWrite(LED_BUILTIN, HIGH);
 
-    // check the battery level every 200ms
+    // reports the values every REPORT_INTERVAL ms
     // while the central is connected:
     while (central.connected()) {
       long currentMillis = millis();
-      // if 200ms have passed, check the battery level:
-      if (currentMillis - previousMillis >= 16) {
+      if (currentMillis - last > PULSE_TIMEOUT) {
+        last = currentMillis;
+        currentSpeed = 0;
+      }
+      if (currentMillis - previousMillis >= REPORT_INTERVAL) {
         previousMillis = currentMillis;
+        updateSpeed();
         updateBatteryLevel();
       }
     }
@@ -94,13 +112,29 @@ void updateBatteryLevel() {
   /* Read the current voltage level on the A0 analog input pin.
      This is used here to simulate the charge level of a battery.
   */
+  static int previousBatteryLevel = 0;
   int battery = analogRead(A0);
   int batteryLevel = map(battery, 0, 1023, -512, 511);
+  if(previousBatteryLevel != batteryLevel) {
+    previousBatteryLevel = batteryLevel;
+    batteryLevelChar.writeValue(batteryLevel);  // and update the battery level characteristic  
+  }
+}
 
-//  if (batteryLevel != oldBatteryLevel) {      // if the battery level has changed
-//    Serial.print("Battery Level % is now: "); // print it
-//    Serial.println(batteryLevel);
-    batteryLevelChar.writeValue(batteryLevel);  // and update the battery level characteristic
-    oldBatteryLevel = batteryLevel;           // save the level for next comparison
-//  }
+void updateSpeed() {
+  static float previousSpeed = 0;
+  if(previousSpeed != currentSpeed) {
+    previousSpeed = currentSpeed;
+    speedFloat.writeValue(currentSpeed);
+  }
+}
+
+void calculateSpeed() {
+  long now = millis();
+  long pulseLength = now - last;
+  if (pulseLength < PULSE_MIN_INTERVAL || pulseLength > PULSE_TIMEOUT) {
+    return;
+  }
+  currentSpeed = (DIAMETER * PI / SPOKES) * 1000.0 / pulseLength;
+  last = now;
 }
