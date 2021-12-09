@@ -123,19 +123,24 @@ AFRAME.registerComponent("extended-wasd-controls", {
       const { characteristics } =
         await peripheral.discoverSomeServicesAndCharacteristicsAsync(
           ["180f"],
-          ["2a19"]
+          ["2a19", "2a20"]
         );
 
       // const batteryLevel = (await characteristics[0].readAsync())[0];
 
       await characteristics[0].subscribeAsync();
+      await characteristics[1].subscribeAsync();
       characteristics[0].on("data", (chunk) => {
-        self.el.rotateSensorRaw = chunk.readInt16LE() || 0;
+        const OFFSET = 170;
+        self.el.rotateSensorRaw = chunk.readInt16LE() - OFFSET || 0;
         document.getElementById("handlebar").style = `transform: rotate(${
           self.el.rotateSensorRaw / 8
         }deg); filter: invert()`;
       });
-
+      characteristics[1].on("data", (chunk) => {
+        self.el.speedSensorRaw = chunk.readFloatLE() || 0.0;
+        console.log(self.el.speedSensorRaw);
+      });
       // console.log(
       //   `${peripheral.address} (${peripheral.advertisement.localName}): ${batteryLevel}%`
       // );
@@ -231,16 +236,24 @@ AFRAME.registerComponent("extended-wasd-controls", {
       //   when querying which keys are currently pressed
       this.movePercent.set(0, 0, 0);
 
-      document.getElementById("song").playbackRate = 1.0;
+      // document.getElementById("song").playbackRate = 1.0;
 
-      if (this.isKeyPressed(this.data.moveForwardKey)) {
-        this.movePercent.z += 1;
-        document.getElementById("song").playbackRate = 2.0;
-      }
+      // if (this.isKeyPressed(this.data.moveForwardKey)) {
+      //   this.movePercent.z += 1;
+      //   document.getElementById("song").playbackRate = 2.0;
+      // }
 
-      if (this.isKeyPressed(this.data.moveBackwardKey)) {
-        this.movePercent.z -= 1;
-        document.getElementById("song").playbackRate = 0.5;
+      // if (this.isKeyPressed(this.data.moveBackwardKey)) {
+      //   this.movePercent.z -= 1;
+      //   document.getElementById("song").playbackRate = 0.5;
+      // }
+      if (this.el.speedSensorRaw >= 0) {
+        const speedSensor = this.el.speedSensorRaw / 4.0;
+        this.movePercent.z += speedSensor;
+        document.getElementById("song").playbackRate = Math.min(
+          Math.max(speedSensor, 0.25),
+          4.0
+        );
       }
 
       if (this.isKeyPressed(this.data.moveRightKey)) this.movePercent.x += 1;
