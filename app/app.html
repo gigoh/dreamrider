@@ -10,7 +10,7 @@
     <!-- SCENE -->
     <a-scene
       camera-position
-      environment="preset: forest; seed: 123; playArea: 0.8; dressing: mushrooms; dressingAmount: 100; dressingColor: white"
+      environment="preset: forest; seed: 125; playArea: 0.8; dressing: mushrooms; dressingAmount: 100; dressingColor: white"
       keyboard-shortcuts="enterVR: false;"
       vr-mode-ui="enabled: false"
       loading-screen="dotsColor: red; backgroundColor: black"
@@ -28,7 +28,7 @@
         depth="200"
         width="1.5"
         position="0 1.3 0"
-        audioanalyser="src: #song"
+        audioanalyser="src: #song; fftSize: 8192"
         color="yellow"
         audioanalyser-volume-scale="multiplier: .08"
       ></a-box>

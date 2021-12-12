@@ -230,6 +230,9 @@
 		this.dressing3 = document.createElement('a-entity');
 		this.dressing3.classList.add('environmentDressing3');
 		this.dressing3.classList.add('environment');
+		this.dressing4 = document.createElement('a-entity');
+		this.dressing4.classList.add('environmentDressing4');
+		this.dressing4.classList.add('environment');
 
 	    this.gridCanvas = null;
 	    this.gridTexture = null;
@@ -255,6 +258,7 @@
 	    this.el.appendChild(this.dressing);
 		this.el.appendChild(this.dressing2);
 		this.el.appendChild(this.dressing3);
+		this.el.appendChild(this.dressing4);
 	    this.el.appendChild(this.sky);
 	  },
 
@@ -900,12 +904,13 @@
 
 	  // updates set dressing
 	  updateDressing: function () {
-		  for (let asdf = 0; asdf < 3; ++asdf) {
+		  for (let asdf = 0; asdf < 4; ++asdf) {
 	    var dressing = new THREE.Object3D();
 	    var geometries = [];
 	    (asdf === 0) && this.dressing.setAttribute('visible', this.environmentData.dressing != 'none');
 		(asdf === 1) && this.dressing2.setAttribute('visible', this.environmentData.dressing != 'none');
 		(asdf === 2) && this.dressing3.setAttribute('visible', this.environmentData.dressing != 'none');
+		(asdf === 3) && this.dressing4.setAttribute('visible', this.environmentData.dressing != 'none');
 	    if (this.environmentData.dressing == 'none') {
 	      return;
 	    }
@@ -1009,6 +1014,7 @@
 	    (asdf === 0) && this.dressing.setObject3D('mesh', dressing);
 		(asdf === 1) && this.dressing2.setObject3D('mesh', dressing);
 		(asdf === 2) && this.dressing3.setObject3D('mesh', dressing);
+		(asdf === 3) && this.dressing4.setObject3D('mesh', dressing);
 	}
 	  },
 
